@@ -122,7 +122,7 @@ public class RAM2CATConverter extends Task {
                     transition.freq = Double.parseDouble(array2[array2.length-1]);
                 }
                 if (array2.length==12&array2[10].trim().length()==2){
-                    fileFormat = 2; // RAM36 two-top catalog format
+                    fileFormat = 2; // RAM36 two-top "catalog" format
                     switch (array2[10].trim()){
                         case "00" : transition.s2 = 0; // AA
                         case "01" : transition.s2 = 1; // EE
