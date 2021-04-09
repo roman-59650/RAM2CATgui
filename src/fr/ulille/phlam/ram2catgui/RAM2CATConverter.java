@@ -32,13 +32,13 @@ public class RAM2CATConverter extends Task {
     private StringProperty molecularTag;
 
     private class Transition{
-        private static final double C = 2.99792458E+08;
-        public int j2, ka2, kc2, m2, j1, ka1, kc1, m1;
+        private static final double C = 29979.2458; // 1 cm-1 in MHz units !!!
+        public int j2, ka2, kc2, m2, j1, ka1, kc1, m1, s1, s2;
         public double f2, f1, freq, smu2, elo, unc;
         public double its, li;
 
         public Transition(){
-            j2 = 0; ka2 = 0; kc2 = 0; m2 = 0; j1 = 0; ka1 = 0; kc1 = 0; m1 = 0;
+            j2 = 0; ka2 = 0; kc2 = 0; m2 = 0; j1 = 0; ka1 = 0; kc1 = 0; m1 = 0; s1 = 0; s2 = 0;
             f2 = 0; f1 = 0; freq = 0; smu2 = 0; elo = 0; unc = 0;
             its = 0; li = 0;
         }
@@ -52,6 +52,7 @@ public class RAM2CATConverter extends Task {
             String tag = molecularTag.getValue();
             double its = 4.16231e-05*freq*smu2*(Math.exp(-1.438*elo/T)-Math.exp(-1.438*(elo+fcm)/T))/Qrs;
             double li = Math.log10(its);
+            //TODO : take half-integer quanta into account in the QFMT field
             if (fileFormat==0){
                 convertedString = String.format(Locale.US, "%13.4f%8.4f%8.4f%2d%10.4f%3d %6s1404%2d%2d%2d%2d    %2d%2d%2d%2d",
                         freq,unc,li,3,elo,Math.round(j2)*2+1,tag,j2,ka2,kc2,m2,j1,ka1,kc1,m1);
@@ -60,7 +61,10 @@ public class RAM2CATConverter extends Task {
                 convertedString = String.format(Locale.US, "%13.4f%8.4f%8.4f%2d%10.4f%3d %6s1405%2d%2d%2d%2d%2d  %2d%2d%2d%2d%2d",
                         freq,unc,li,3,elo,Math.round(f2)*2+1,tag,j2,ka2,kc2,m2,Math.round(Math.ceil(f2)),j1,ka1,kc1,m1,Math.round(Math.ceil(f1)));
             }
-
+            if (fileFormat==2){
+                convertedString = String.format(Locale.US, "%13.4f%8.4f%8.4f%2d%10.4f%3d %6s1405%2d%2d%2d%2d%2d  %2d%2d%2d%2d%2d",
+                        freq,unc,li,3,elo,Math.round(f2)*2+1,tag,j2,ka2,kc2,m2,s2,j1,ka1,kc1,m1,s2);
+            }
             return convertedString;
         }
     }
@@ -71,7 +75,7 @@ public class RAM2CATConverter extends Task {
         hasToSubtractElow = new SimpleBooleanProperty(true);
         inputFileColor = new SimpleObjectProperty<>(Color.BLACK);
         fileToConvert = new SimpleObjectProperty<>();
-        molecularTag = new SimpleStringProperty("00000");
+        molecularTag = new SimpleStringProperty();
     }
 
     @Override
@@ -106,7 +110,6 @@ public class RAM2CATConverter extends Task {
                 }
             }
             if (array2.length==11||array2.length==12){
-                fileFormat = 0;
                 for (int i=0;i<array2.length-1;i++){
                     transition.m2=Integer.parseInt(array2[1]);
                     transition.j2=Integer.parseInt(array2[2]);
@@ -117,6 +120,17 @@ public class RAM2CATConverter extends Task {
                     transition.ka1=Integer.parseInt(array2[8]);
                     transition.kc1=Integer.parseInt(array2[9]);
                     transition.freq = Double.parseDouble(array2[array2.length-1]);
+                }
+                if (array2.length==12&array2[10].trim().length()==2){
+                    fileFormat = 2; // RAM36 two-top catalog format
+                    switch (array2[10].trim()){
+                        case "00" : transition.s2 = 0; // AA
+                        case "01" : transition.s2 = 1; // EE
+                        case "11" : transition.s2 = 3; // EA
+                        case "12" : transition.s2 = 5; // AE
+                    }
+                } else {
+                    fileFormat = 0;
                 }
             }
             transition.elo = Double.parseDouble(array3[0]);

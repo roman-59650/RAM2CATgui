@@ -57,7 +57,6 @@ public class Controller implements Initializable {
                     protected Task<Void> createTask() {
                         converter = new RAM2CATConverter();
                         if (fileToConvert!=null) converter.setFileToConvert(fileToConvert);
-                        molecularTagField.textProperty().bindBidirectional(converter.molecularTagProperty());
                         converter.molecularTagProperty().bind(molecularTagField.textProperty());
                         converter.hasToSubtractElowProperty().bind(hasToSubtractElowBox.selectedProperty());
                         converter.conversionTemperatureProperty().bind(t);

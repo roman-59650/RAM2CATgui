@@ -1,0 +1,23 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="RAM2CATgui">
+    <output-path>$PROJECT_DIR$/out/artifacts/RAM2CATgui</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="fr.ulille.phlam.ram2catgui.Main" />
+        <option name="description" value="" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="title" value="" />
+        <option name="vendor" value="" />
+        <option name="version" value="" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="RAM2CATgui.jar">
+        <element id="module-output" name="RAM2CATgui" />
+      </element>
+      <element id="directory" name="lib">
+        <element id="library" level="project" name="org.controlsfx:controlsfx:8.40.18" />
+      </element>
+    </root>
+  </artifact>
+</component>
